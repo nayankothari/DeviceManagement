@@ -1,1 +1,1 @@
-{'device_details': {'serial_number': '123456', 'temperature': '10', 'ram_uses': '100 %', 'available_ram': '100 %', 'available_hdd': '100 %', 'GPIO_status': ['10', '20'], 'time_stamp': '2021-05-31 19:09:59.578130'}}
+{"device_details": {"serial_number": "123456", "temperature": "52.4", "ram_uses": "25 %", "available_ram": "75 %", "available_hdd": "7.62 %", "GPIO_status": ["23", "24"], "time_stamp": "2021-06-02 12:35:44.442252"}}

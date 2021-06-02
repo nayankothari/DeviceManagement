@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.shortcuts import HttpResponse
-import json, os
+import json, os, datetime
 import paho.mqtt.publish as publish
 
 
@@ -43,20 +43,35 @@ def device_data_from_device(request,**kwargs):
         site_prefix = kwargs.get("site_prefix")
 
         with open("temp_database//"+site_prefix+".json", "w") as f:
-            f.write(str(data))
+            json.dump(data, f)
         return Response(data, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(["GET"])
 def show_last_readings_of_device(request, **kwargs):
     try:
         site_prefix = kwargs.get("site_prefix")
         with open("temp_database//"+site_prefix+".json", "r") as f:
-            data = f.read()
-        return HttpResponse(data, status=status.HTTP_200_OK, content_type='application/json')
+            data = json.loads(f.read())
+            time_stamp = data.get("device_details").get("time_stamp")
+            dt_object = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+            compare = datetime.datetime.now() - dt_object
+            days, seconds = compare.days, compare.seconds
+            hours = days * 24 + seconds // 3600
+            # minutes = (seconds % 3600) // 60
+            # seconds = seconds % 60
+            if hours >= 1 and hours <= 2:
+                data["device_status"] = "Delay"
+            elif hours >= 3:
+                data["device_status"] = "Offline"
+            else:
+                data["device_status"] = "Online"
+
+            return HttpResponse(json.dumps(data), status=status.HTTP_200_OK, content_type='application/json')
     except:
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return HttpResponse('{"Message": "Device Details Not found."}', content_type='application/json')
 
 
 @api_view(["POST"])
