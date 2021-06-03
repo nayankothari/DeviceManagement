@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from django.shortcuts import HttpResponse
 import json, os, datetime
 import paho.mqtt.publish as publish
-
+import time, os
 
 try: os.mkdir("temp_database")
 except:pass
@@ -53,9 +53,14 @@ def device_data_from_device(request,**kwargs):
 def show_last_readings_of_device(request, **kwargs):
     try:
         site_prefix = kwargs.get("site_prefix")
+        message = {"cmd": "Do something"}
+        message = json.dumps(message).encode("utf-8")
+        publish.single(site_prefix, message, hostname="test.mosquitto.org")
+        time.sleep(1)
+        print(site_prefix)
         with open("temp_database//"+site_prefix+".json", "r") as f:
             data = json.loads(f.read())
-            time_stamp = data.get("device_details").get("time_stamp")
+            time_stamp = data.get("time_stamp")
             dt_object = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
             compare = datetime.datetime.now() - dt_object
             days, seconds = compare.days, compare.seconds
@@ -68,7 +73,7 @@ def show_last_readings_of_device(request, **kwargs):
                 data["device_status"] = "Offline"
             else:
                 data["device_status"] = "Online"
-
+            # os.remove("temp_database//"+site_prefix+".json")
             return HttpResponse(json.dumps(data), status=status.HTTP_200_OK, content_type='application/json')
     except:
         return HttpResponse('{"Message": "Device Details Not found."}', content_type='application/json')
