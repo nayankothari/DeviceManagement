@@ -56,10 +56,10 @@ def show_last_readings_of_device(request, **kwargs):
         message = {"cmd": "Do something"}
         message = json.dumps(message).encode("utf-8")
         publish.single(site_prefix, message, hostname="test.mosquitto.org")
-        time.sleep(1)
-        print(site_prefix)
+        time.sleep(2)
         with open("temp_database//"+site_prefix+".json", "r") as f:
             data = json.loads(f.read())
+            print(datetime.datetime.now())
             time_stamp = data.get("time_stamp")
             dt_object = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
             compare = datetime.datetime.now() - dt_object

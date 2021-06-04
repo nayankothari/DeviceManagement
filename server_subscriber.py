@@ -5,7 +5,7 @@ pip install paho-mqtt
 """
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
-import json, time
+import json, time, datetime
 
 
 def on_connect(client, userdata, flag, rc):
@@ -30,6 +30,8 @@ def on_message(client, userdata, msg):
         site_id = message2.get("site_id")
         with open("temp_database//"+site_id+".json", "w") as f:
             json.dump(message2.get("device_details"), f)
+            print(datetime.datetime.now())
+            client.publish("Received Your Message")
 
     except Exception as e:
         print(e)
